@@ -19,6 +19,8 @@ const reviewRouter = require('./router/reviews-router');
 
 const app = express();
 
+app.enable('trust proxy');
+
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'view'));
 app.use(express.static('public'));

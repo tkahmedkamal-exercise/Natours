@@ -8,10 +8,11 @@ const {
 const AppError = require('../utils/app-error');
 const catchAsync = require('../utils/catch-async');
 
-const cookieToken = (res, user) => {
+const cookieToken = (req, res, user) => {
   const cookieOptions = {
     expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
-    httpOnly: true // Don't access cookie token or modified cookie token with browser, store cookie token and send this every requests
+    httpOnly: true, // Don't access cookie token or modified cookie token with browser, store cookie token and send this every requests
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https' // return true if protocol is [https]
   };
 
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
@@ -25,7 +26,7 @@ const cookieToken = (res, user) => {
 exports.signup = catchAsync(async (req, res, next) => {
   const user = await signup(req);
 
-  cookieToken(res, user);
+  cookieToken(req, res, user);
 
   res.status(201).json({
     status: 'success',
@@ -49,7 +50,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', '401'));
   }
 
-  cookieToken(res, user);
+  cookieToken(req, res, user);
 
   res.status(200).json({
     status: 'success',
@@ -81,7 +82,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Token is invalid or has expired', '400'));
   }
 
-  cookieToken(res, user);
+  cookieToken(req, res, user);
 
   res.status(200).json({
     status: 'success',
@@ -95,7 +96,7 @@ exports.updateCurrentUserPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Your current password is wrong!', '401'));
   }
 
-  cookieToken(res, user);
+  cookieToken(req, res, user);
 
   res.status(200).json({
     status: 'success',
