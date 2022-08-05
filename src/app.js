@@ -9,6 +9,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const compression = require('express-compression');
+const cors = require('cors');
 
 const AppError = require('./utils/app-error');
 const globalErrorHandler = require('./middlewares/error-handler');
@@ -23,6 +24,11 @@ app.enable('trust proxy');
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'view'));
+
+app.use(cors());
+app.options('*', cors());
+// app.options('/api/tours/:id', cors());
+
 app.use(express.static('public'));
 
 app.use(helmet.crossOriginEmbedderPolicy());
